@@ -15,7 +15,7 @@ m=1; % mode number, 0, 1, ....
 D2 = D^2; % we need a second derivative
 
 inv_r = 1./r; % easier naming
-inv_r2 = 1./(r^2);
+inv_r2 = 1./(r.^2);
 inv_r(1) = 0;  % set this 0 to avoid division by 0
 inv_r2(1) = 0; % likewise
 
