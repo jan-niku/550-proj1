@@ -1,0 +1,45 @@
+
+% Problem idea:
+% we are looking for omega such that J_m (omega) = 0.
+% This arises because we are attempting to enforce a boundary condition
+% that at the edge of the drum (at r=1), the displacement should be
+% identically 0. A substitution leaves us looking at J_m (omega * r).
+% we turn the problem into an eigen-problem using chebyshev differentiation
+% matrices. These should have eigenvalues equal to the negative root of
+% such omegas, if the boundary conditions are correctly entered...
+
+N=5; % number of discretized points
+m=1; % mode number, 0, 1, ....
+
+[D, r] = cheb(N); % get both the discretized points and the matrix
+D2 = D^2; % we need a second derivative
+
+inv_r = 1./r; % easier naming
+inv_r2 = 1./(r^2);
+inv_r(1) = 0;  % set this 0 to avoid division by 0
+inv_r2(1) = 0; % likewise
+
+% build the linear operator
+M = diag(inv_r)*D - diag(inv_r2*m^2) + D2;
+
+% Enforcing boundary conditions
+M(1, :) = D(1, :);  % u_r(0) = 0
+M(N+1, :) = 0;
+M(N+1, N+1) = 1;  % u(1) = 0
+
+[vecs, vals] = eig(M); % grab the -w^2
+vals = real( (-1 * vals).^(1/2) ); % undo the -w^2 to get w
+
+C = 1; % the choice of eigenvalue
+
+% make a plot
+x = linspace(0,vals(C,C)+1,100); % make 100 point grid from 0 to just past the eigenvalue
+jx = besselj(0, vals(C,C) * x); % calculate the bessel function on this grid
+plot(x,jx)
+hold on
+xline(vals(C,C)) % a vertical line at the given omega
+yline(0)         % a horizontal line at 0
+% if the method is correct, these lines intersect the
+% bessel function. This intersection persists through
+% different choices of C and m = 0,1,...
+hold off
